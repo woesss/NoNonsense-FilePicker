@@ -9,7 +9,6 @@ package com.nononsenseapps.filepicker.sample;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Intent;
-import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -33,6 +32,8 @@ import com.nononsenseapps.filepicker.sample.root.SUPickerActivity;
 import com.nononsenseapps.filepicker.sample.root.SUPickerActivity2;
 
 import java.util.List;
+
+import androidx.databinding.DataBindingUtil;
 
 
 public class NoNonsenseFilePicker extends Activity {

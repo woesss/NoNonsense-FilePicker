@@ -1,6 +1,5 @@
 package com.nononsenseapps.filepicker.sample.root;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.nononsenseapps.filepicker.FilePickerFragment;
@@ -8,6 +7,7 @@ import com.nononsenseapps.filepicker.FilePickerFragment;
 import java.io.File;
 import java.util.List;
 
+import androidx.annotation.NonNull;
 import eu.chainfire.libsuperuser.Shell;
 
 /**

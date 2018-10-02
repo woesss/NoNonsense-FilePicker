@@ -6,9 +6,9 @@
 
 package com.nononsenseapps.filepicker.sample.ftp;
 
-import android.support.annotation.NonNull;
-
 import org.apache.commons.net.ftp.FTPFile;
+
+import androidx.annotation.NonNull;
 
 /**
  * Adds path information to FtpFile objects

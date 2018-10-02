@@ -1,12 +1,12 @@
 package com.nononsenseapps.filepicker.sample.fastscroller;
 
-import android.support.annotation.NonNull;
-
 import com.nononsenseapps.filepicker.FileItemAdapter;
 import com.nononsenseapps.filepicker.LogicHandler;
 import com.simplecityapps.recyclerview_fastscroll.views.FastScrollRecyclerView;
 
 import java.io.File;
+
+import androidx.annotation.NonNull;
 
 
 public class FastScrollerFileItemAdapter extends FileItemAdapter<File> implements

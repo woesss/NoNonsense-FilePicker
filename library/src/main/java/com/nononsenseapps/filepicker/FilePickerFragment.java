@@ -10,16 +10,17 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.FileObserver;
-import android.support.annotation.NonNull;
-import android.support.v4.content.AsyncTaskLoader;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v4.content.Loader;
-import android.support.v7.util.SortedList;
-import android.support.v7.widget.util.SortedListAdapterCallback;
 import android.widget.Toast;
 
 import java.io.File;
+
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.loader.content.Loader;
+import androidx.recyclerview.widget.SortedList;
+import androidx.recyclerview.widget.SortedListAdapterCallback;
 
 /**
  * An implementation of the picker which allows you to select a file from the internal/external

@@ -7,13 +7,12 @@
 package com.nononsenseapps.filepicker.sample.ftp;
 
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.nononsenseapps.filepicker.AbstractFilePickerActivity;
 import com.nononsenseapps.filepicker.AbstractFilePickerFragment;
 
 import org.apache.commons.net.ftp.FTPClient;
+
+import androidx.annotation.Nullable;
 
 /**
  * An example implementation of an FTP file-picker

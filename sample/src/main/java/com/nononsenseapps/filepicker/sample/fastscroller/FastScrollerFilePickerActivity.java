@@ -7,12 +7,13 @@
 package com.nononsenseapps.filepicker.sample.fastscroller;
 
 import android.os.Environment;
-import android.support.annotation.Nullable;
 
 import com.nononsenseapps.filepicker.AbstractFilePickerActivity;
 import com.nononsenseapps.filepicker.AbstractFilePickerFragment;
 
 import java.io.File;
+
+import androidx.annotation.Nullable;
 
 /**
  * All this class does is return a suitable fragment.
