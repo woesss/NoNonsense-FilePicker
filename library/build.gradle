@@ -9,8 +9,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'bintray-release'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     lintOptions {
         abortOnError false
@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 24
+        targetSdkVersion 28
         versionCode gitCommitCount
         versionName gitTag
         vectorDrawables.useSupportLibrary = true
@@ -26,19 +26,20 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:24.2.1'
-    compile 'com.android.support:support-v4:24.2.1'
-    compile 'com.android.support:recyclerview-v7:24.2.1'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:support-v4:28.0.0'
+    api 'com.android.support:appcompat-v7:28.0.0'
+    api 'com.android.support:recyclerview-v7:28.0.0'
 
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
 }
 
 publish {
+    userOrg = 'nononsenseapps'
     groupId = 'com.nononsenseapps'
     artifactId = 'filepicker'
     publishVersion = gitTag
-    description = 'An extendable Android file/directory-picker you can include in your app'
+    desc = 'An extendable Android file/directory-picker you can include in your app'
     website = 'https://github.com/spacecowboy/NoNonsense-FilePicker'
     licences = ['MPL-2.0']
     uploadName = 'com.nononsenseapps:filepicker'

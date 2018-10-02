@@ -7,8 +7,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 24
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
 
     dataBinding {
         enabled = true
@@ -24,8 +24,8 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 11
-        targetSdkVersion 24
+        minSdkVersion 15
+        targetSdkVersion 28
         versionCode gitCommitCount
         versionName gitTag
         archivesBaseName = "nononsensefilepicker-sample-${gitTag}".toString()
@@ -33,6 +33,7 @@ android {
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
     }
+    flavorDimensions "default"
 
     productFlavors {
         sample {}
@@ -54,27 +55,27 @@ android {
 }
 
 dependencies {
-    compile project(':library')
+    implementation project(':library')
 
     // Image loading sample
-    compile 'com.github.bumptech.glide:glide:3.6.1'
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
 
     // FTP browser sample
-    compile 'commons-net:commons-net:3.3'
+    implementation 'commons-net:commons-net:3.3'
 
     // Root example
-    compile 'eu.chainfire:libsuperuser:1.0.0.+'
+    implementation 'eu.chainfire:libsuperuser:1.0.0.201704021214'
 
     // Fast scroll example
-    compile 'com.simplecityapps:recyclerview-fastscroll:1.0.9'
+    implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.9'
 
     // Dropbox example
-    compile 'com.dropbox.core:dropbox-core-sdk:3.0.5'
+    implementation 'com.dropbox.core:dropbox-core-sdk:3.0.5'
 
     // UI Tests
-    androidTestCompile 'junit:junit:4.12'
-    uitestsCompile 'com.android.support.test.espresso:espresso-core:2.2.2'
-    uitestsCompile 'com.android.support.test:runner:0.5'
-    uitestsCompile 'com.android.support.test.espresso:espresso-contrib:2.2.2'
-    uitestsCompile 'com.android.support.test.uiautomator:uiautomator-v18:2.1.2'
+    implementation 'junit:junit:4.12'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-contrib:3.0.2'
+    androidTestImplementation 'com.android.support.test.uiautomator:uiautomator-v18:2.1.3'
 }
