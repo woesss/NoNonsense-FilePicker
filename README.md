@@ -66,11 +66,11 @@ Just add the dependency to your *build.gradle*:
 
 ```groovy
 repositories {
-    jcenter()
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    compile 'com.nononsenseapps:filepicker:4.1.0'
+    implementation 'com.github.nikita36078:filepicker:4.3.0'
 }
 ```
 
