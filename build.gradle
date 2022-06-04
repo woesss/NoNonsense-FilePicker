@@ -5,26 +5,19 @@
  */
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
-buildscript {
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.2.0'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-    }
+plugins {
+    id 'com.android.application' version '8.1.1' apply false
+    id 'com.android.library' version '8.1.1' apply false
 }
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-    }
+tasks.register('clean', Delete) {
+    delete rootProject.buildDir
 }
 
 ext {
     gitTag = '4.3.0'
     gitCommitCount = Integer.parseInt('git rev-list --count HEAD'.execute([], project.rootDir).text.trim())
+    TARGET_SDK = 34
+    MIN_SDK = 14
+    COMPILE_SDK = 34
 }

@@ -279,7 +279,7 @@ public class DropboxFilePickerFragment extends AbstractFilePickerFragment<Metada
                 CreateFolderResult createFolderResult =  dropboxClient.files().createFolderV2(path);
                 return createFolderResult.getMetadata();
             } catch (DbxException e) {
-                Log.d(TAG, getString(R.string.nnf_create_folder_error), e);
+                Log.d(TAG, getString(com.nononsenseapps.filepicker.R.string.nnf_create_folder_error), e);
                 return null;
             }
         }
@@ -291,7 +291,7 @@ public class DropboxFilePickerFragment extends AbstractFilePickerFragment<Metada
             } else {
                 progressBar.setVisibility(View.INVISIBLE);
                 recyclerView.setVisibility(View.VISIBLE);
-                Toast.makeText(getActivity(), R.string.nnf_create_folder_error,
+                Toast.makeText(getActivity(), com.nononsenseapps.filepicker.R.string.nnf_create_folder_error,
                         Toast.LENGTH_SHORT).show();
             }
         }

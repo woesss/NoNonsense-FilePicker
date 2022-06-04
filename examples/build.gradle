@@ -1,21 +1,20 @@
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
-
-    lintOptions {
-        abortOnError false
-    }
+    namespace 'com.nononsenseapps.filepicker.examples'
+    compileSdk COMPILE_SDK
 
     defaultConfig {
         applicationId "com.nononsenseapps.filepicker.examples"
-        minSdkVersion 15
-        targetSdkVersion 28
+        minSdk MIN_SDK
+        targetSdk TARGET_SDK
         versionCode 1
         versionName "1.0"
         vectorDrawables.useSupportLibrary = true
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -26,6 +25,5 @@ android {
 
 dependencies {
     implementation project(':library')
-    testImplementation 'junit:junit:4.12'
-    implementation 'androidx.appcompat:appcompat:1.0.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 }

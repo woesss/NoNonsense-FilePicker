@@ -4,28 +4,28 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-apply plugin: 'com.android.application'
+plugins {
+    id 'com.android.application'
+}
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    namespace 'com.nononsenseapps.filepicker.sample'
+    compileSdk COMPILE_SDK
 
     dataBinding {
         enabled = true
     }
 
     packagingOptions {
-        exclude 'META-INF/LICENSE.txt'
-        exclude 'META-INF/NOTICE.txt'
+        resources {
+            excludes += ['META-INF/LICENSE.txt', 'META-INF/NOTICE.txt']
+        }
     }
 
-    lintOptions {
-        abortOnError false
-    }
 
     defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 28
+        minSdk MIN_SDK
+        targetSdk TARGET_SDK
         versionCode gitCommitCount
         versionName gitTag
         archivesBaseName = "nononsensefilepicker-sample-${gitTag}".toString()
@@ -33,49 +33,49 @@ android {
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
     }
-    flavorDimensions "default"
 
+    flavorDimensions = ["default"]
     productFlavors {
         sample {}
         uitests {
-            minSdkVersion 18
+            minSdk 18
         }
     }
 
     buildTypes {
         release {
-            release {
-                archivesBaseName = "nononsensefilepicker-sample-${gitTag}".toString()
-                //minifyEnabled true
-                //shrinkResources true
-                //proguardFiles getDefaultProguardFile('proguard-android.txt')
-            }
+            archivesBaseName = "nononsensefilepicker-sample-${gitTag}".toString()
+            //minifyEnabled true
+            //shrinkResources true
+            //proguardFiles getDefaultProguardFile('proguard-android.txt')
         }
     }
 }
 
 dependencies {
     implementation project(':library')
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 
     // Image loading sample
-    implementation 'com.github.bumptech.glide:glide:3.7.0'
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
 
     // FTP browser sample
-    implementation 'commons-net:commons-net:3.3'
+    implementation 'commons-net:commons-net:20030805.205232'
 
     // Root example
-    implementation 'eu.chainfire:libsuperuser:1.0.0.201704021214'
+    implementation 'eu.chainfire:libsuperuser:226d21bb5b68073f483f2c151208ee1e95ad8aae'
 
     // Fast scroll example
-    implementation 'com.simplecityapps:recyclerview-fastscroll:1.0.9'
+    implementation 'com.simplecityapps:recyclerview-fastscroll:2.0.1'
 
     // Dropbox example
-    implementation 'com.dropbox.core:dropbox-core-sdk:3.0.5'
+    implementation 'com.dropbox.core:dropbox-core-sdk:5.4.5'
 
     // UI Tests
-    implementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.0-alpha4'
-    androidTestImplementation 'androidx.test:runner:1.1.0-alpha4'
-    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.1.0-alpha4'
-    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0-alpha4'
+    implementation 'junit:junit:4.13.2'
+    implementation 'androidx.core:core:1.12.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation 'androidx.test:runner:1.5.2'
+    androidTestImplementation 'androidx.test.espresso:espresso-contrib:3.5.1'
+    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 }

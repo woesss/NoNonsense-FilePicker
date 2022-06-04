@@ -5,11 +5,11 @@
   ~ file, You can obtain one at http://mozilla.org/MPL/2.0/.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.nononsenseapps.filepicker.sample">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!-- For SD-card -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
 
     <!-- For Dropbox -->
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -24,7 +24,7 @@
         <!-- Sample app -->
         <activity
             android:name=".NoNonsenseFilePicker"
-            android:label="@string/title_activity_no_nonsense_file_picker">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -33,8 +33,7 @@
 
         <!-- Test activity, required to deal with runtime permissions -->
         <activity
-            android:name=".NoNonsenseFilePickerTest"
-            android:label="@string/title_activity_no_nonsense_file_picker"/>
+            android:name=".NoNonsenseFilePickerTest" />
 
         <!-- SD-card pickers -->
         <!-- You must define a fileprovider for the sd-card pickers -->
@@ -49,8 +48,8 @@
         </provider>
         <activity
             android:name="com.nononsenseapps.filepicker.FilePickerActivity"
-            android:label="@string/title_activity_no_nonsense_file_picker"
-            android:theme="@style/SampleTheme">
+            android:theme="@style/SampleTheme"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -59,8 +58,8 @@
 
         <activity
             android:name=".FilePickerActivity2"
-            android:label="@string/title_activity_no_nonsense_file_picker"
-            android:theme="@style/SampleThemeLight">
+            android:theme="@style/SampleThemeLight"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -69,8 +68,8 @@
 
         <activity
             android:name=".multimedia.MultimediaPickerActivity"
-            android:label="@string/title_activity_no_nonsense_file_picker"
-            android:theme="@style/SampleTheme">
+            android:theme="@style/SampleTheme"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -79,8 +78,8 @@
 
         <activity
             android:name=".multimedia.MultimediaPickerActivity2"
-            android:label="@string/title_activity_no_nonsense_file_picker"
-            android:theme="@style/SampleThemeLight">
+            android:theme="@style/SampleThemeLight"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -89,8 +88,8 @@
 
         <activity
             android:name=".root.SUPickerActivity"
-            android:label="@string/title_activity_no_nonsense_file_picker"
-            android:theme="@style/SampleThemeLight">
+            android:theme="@style/SampleThemeLight"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -99,8 +98,8 @@
 
         <activity
             android:name=".root.SUPickerActivity2"
-            android:label="@string/title_activity_no_nonsense_file_picker"
-            android:theme="@style/SampleTheme">
+            android:theme="@style/SampleTheme"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -109,8 +108,8 @@
 
         <activity
             android:name=".fastscroller.FastScrollerFilePickerActivity"
-            android:label="@string/title_activity_no_nonsense_file_picker"
-            android:theme="@style/SampleThemeLight">
+            android:theme="@style/SampleThemeLight"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -119,8 +118,8 @@
 
         <activity
             android:name=".fastscroller.FastScrollerFilePickerActivity2"
-            android:label="@string/title_activity_no_nonsense_file_picker"
-            android:theme="@style/SampleTheme">
+            android:theme="@style/SampleTheme"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.GET_CONTENT" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -130,29 +129,26 @@
         <!-- FtpPickers -->
         <activity
             android:name=".ftp.FtpPickerActivity"
-            android:label="@string/title_activity_no_nonsense_file_picker"
             android:theme="@style/SampleTheme" />
         <activity
             android:name=".ftp.FtpPickerActivity2"
-            android:label="@string/title_activity_no_nonsense_file_picker"
             android:theme="@style/SampleThemeLight" />
 
         <!-- Dropbox pickers -->
         <activity
             android:name=".dropbox.DropboxFilePickerActivity"
-            android:label="@string/title_activity_no_nonsense_file_picker"
             android:theme="@style/SampleTheme">
         </activity>
         <activity
             android:name=".dropbox.DropboxFilePickerActivity2"
-            android:label="@string/title_activity_no_nonsense_file_picker"
             android:theme="@style/SampleThemeLight">
         </activity>
         <!-- Dropbox authenticator -->
         <activity
             android:name="com.dropbox.core.android.AuthActivity"
             android:configChanges="orientation|keyboard"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:exported="true">
             <intent-filter>
                 <!-- Change this to be db- followed by your app key -->
                 <data android:scheme="db-replace_me_with_your_own_app_key" />

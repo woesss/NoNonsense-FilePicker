@@ -238,7 +238,6 @@ public class FtpPickerFragment extends AbstractFilePickerFragment<FtpFile> {
 
                         ftp.setFileType(FTP.ASCII_FILE_TYPE);
                         ftp.enterLocalPassiveMode();
-                        ftp.setUseEPSVwithIPv4(false);
 
                         if (!(loggedIn = ftp.login(username, password))) {
                             ftp.logout();
@@ -337,7 +336,7 @@ public class FtpPickerFragment extends AbstractFilePickerFragment<FtpFile> {
                 if (folder != null) {
                     refresh(folder);
                 } else {
-                    Toast.makeText(getContext(), R.string.nnf_create_folder_error, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), com.nononsenseapps.filepicker.R.string.nnf_create_folder_error, Toast.LENGTH_SHORT).show();
                 }
             }
         };
