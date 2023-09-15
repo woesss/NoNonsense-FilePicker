@@ -6,12 +6,15 @@
 
 package com.nononsenseapps.filepicker;
 
+import android.annotation.SuppressLint;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.SortedList;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple adapter which also inserts a header item ".." to handle going up to the parent folder.
@@ -20,15 +23,10 @@ import androidx.recyclerview.widget.SortedList;
 public class FileItemAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     protected final LogicHandler<T> mLogic;
-    protected SortedList<T> mList = null;
+    protected List<T> mList = new ArrayList<>();
 
     public FileItemAdapter(@NonNull LogicHandler<T> logic) {
         this.mLogic = logic;
-    }
-
-    public void setList(@Nullable SortedList<T> list) {
-        mList = list;
-        notifyDataSetChanged();
     }
 
     @Override
@@ -78,5 +76,12 @@ public class FileItemAdapter<T> extends RecyclerView.Adapter<RecyclerView.ViewHo
             return null;
         }
         return mList.get(position - 1);
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    public void replaceAll(List<T> data) {
+        mList.clear();
+        mList.addAll(data);
+        notifyDataSetChanged();
     }
 }

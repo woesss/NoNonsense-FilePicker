@@ -6,6 +6,7 @@
 
 package com.nononsenseapps.filepicker.sample.ftp;
 
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +17,10 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.loader.content.Loader;
+
 import com.nononsenseapps.filepicker.AbstractFilePickerFragment;
 import com.nononsenseapps.filepicker.sample.R;
 
@@ -24,12 +29,8 @@ import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
 
 import java.io.IOException;
-
-import androidx.annotation.NonNull;
-import androidx.loader.content.AsyncTaskLoader;
-import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.SortedList;
-import androidx.recyclerview.widget.SortedListAdapterCallback;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This example allows you to browse the files on an FTP-server
@@ -203,100 +204,8 @@ public class FtpPickerFragment extends AbstractFilePickerFragment<FtpFile> {
      */
     @NonNull
     @Override
-    public Loader<SortedList<FtpFile>> getLoader() {
-        return new AsyncTaskLoader<SortedList<FtpFile>>(getContext()) {
-            @Override
-            public SortedList<FtpFile> loadInBackground() {
-                SortedList<FtpFile> sortedList = new SortedList<>(FtpFile.class, new SortedListAdapterCallback<FtpFile>(getDummyAdapter()) {
-                    @Override
-                    public int compare(FtpFile lhs, FtpFile rhs) {
-                        if (lhs.isDirectory() && !rhs.isDirectory()) {
-                            return -1;
-                        } else if (rhs.isDirectory() && !lhs.isDirectory()) {
-                            return 1;
-                        } else {
-                            return lhs.getName().compareToIgnoreCase(rhs.getName());
-                        }
-                    }
-
-                    @Override
-                    public boolean areContentsTheSame(FtpFile oldItem, FtpFile newItem) {
-                        return oldItem.getName().equals(newItem.getName());
-                    }
-
-                    @Override
-                    public boolean areItemsTheSame(FtpFile item1, FtpFile item2) {
-                        return item1.getName().equals(item2.getName());
-                    }
-                });
-
-
-                if (!ftp.isConnected()) {
-                    // Connect
-                    try {
-                        ftp.connect(server, port);
-
-                        ftp.setFileType(FTP.ASCII_FILE_TYPE);
-                        ftp.enterLocalPassiveMode();
-
-                        if (!(loggedIn = ftp.login(username, password))) {
-                            ftp.logout();
-                            Log.e(TAG, "Login failed");
-                        }
-                    } catch (IOException e) {
-                        if (ftp.isConnected()) {
-                            try {
-                                ftp.disconnect();
-                            } catch (IOException ignored) {
-                            }
-                        }
-                        Log.e(TAG, "Could not connect to server.");
-                    }
-                }
-
-                if (loggedIn) {
-                    try {
-                        // handle if directory does not exist. Fall back to root.
-                        if (mCurrentPath == null || !mCurrentPath.isDirectory()) {
-                            mCurrentPath = getRoot();
-                        }
-
-                        sortedList.beginBatchedUpdates();
-                        for (FTPFile f : ftp.listFiles(mCurrentPath.getPath())) {
-                            FtpFile file;
-                            if (f.isDirectory()) {
-                                file = new FtpDir(mCurrentPath, f.getName());
-                            } else {
-                                file = new FtpFile(mCurrentPath, f.getName());
-                            }
-                            if (isItemVisible(file)) {
-                                sortedList.add(file);
-                            }
-                        }
-                        sortedList.endBatchedUpdates();
-                    } catch (IOException e) {
-                        Log.e(TAG, "IOException: " + e.getMessage());
-                    }
-                }
-
-                return sortedList;
-            }
-
-            /**
-             * Handles a request to start the Loader.
-             */
-            @Override
-            protected void onStartLoading() {
-                super.onStartLoading();
-
-                // handle if directory does not exist. Fall back to root.
-                if (mCurrentPath == null || !mCurrentPath.isDirectory()) {
-                    mCurrentPath = getRoot();
-                }
-
-                forceLoad();
-            }
-        };
+    public Loader<List<FtpFile>> getLoader() {
+        return new FtpAsyncTaskLoader(this, FtpPickerFragment.this.getContext());
     }
 
     /**
@@ -358,14 +267,14 @@ public class FtpPickerFragment extends AbstractFilePickerFragment<FtpFile> {
     }
 
     @Override
-    public void onLoadFinished(Loader<SortedList<FtpFile>> loader, SortedList<FtpFile> data) {
+    public void onLoadFinished(Loader<List<FtpFile>> loader, List<FtpFile> data) {
         progressBar.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
         super.onLoadFinished(loader, data);
     }
 
     @Override
-    public void onLoaderReset(Loader<SortedList<FtpFile>> loader) {
+    public void onLoaderReset(Loader<List<FtpFile>> loader) {
         progressBar.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
         super.onLoaderReset(loader);
@@ -385,5 +294,83 @@ public class FtpPickerFragment extends AbstractFilePickerFragment<FtpFile> {
             Log.e(TAG, "IO Exception: " + folder.getPath());
         }
         return null;
+    }
+
+    private static class FtpAsyncTaskLoader extends AsyncTaskLoader<List<FtpFile>> {
+        private final FtpPickerFragment ftpPickerFragment;
+
+        public FtpAsyncTaskLoader(FtpPickerFragment ftpPickerFragment, Context context) {
+            super(context);
+            this.ftpPickerFragment = ftpPickerFragment;
+        }
+
+        @Override
+        public List<FtpFile> loadInBackground() {
+            List<FtpFile> sortedList = new ArrayList<>();
+
+
+            if (!ftpPickerFragment.ftp.isConnected()) {
+                // Connect
+                try {
+                    ftpPickerFragment.ftp.connect(ftpPickerFragment.server, ftpPickerFragment.port);
+
+                    ftpPickerFragment.ftp.setFileType(FTP.ASCII_FILE_TYPE);
+                    ftpPickerFragment.ftp.enterLocalPassiveMode();
+
+                    if (!(ftpPickerFragment.loggedIn = ftpPickerFragment.ftp.login(ftpPickerFragment.username, ftpPickerFragment.password))) {
+                        ftpPickerFragment.ftp.logout();
+                        Log.e(TAG, "Login failed");
+                    }
+                } catch (IOException e) {
+                    if (ftpPickerFragment.ftp.isConnected()) {
+                        try {
+                            ftpPickerFragment.ftp.disconnect();
+                        } catch (IOException ignored) {
+                        }
+                    }
+                    Log.e(TAG, "Could not connect to server.");
+                }
+            }
+
+            if (ftpPickerFragment.loggedIn) {
+                try {
+                    // handle if directory does not exist. Fall back to root.
+                    if (ftpPickerFragment.mCurrentPath == null || !ftpPickerFragment.mCurrentPath.isDirectory()) {
+                        ftpPickerFragment.mCurrentPath = ftpPickerFragment.getRoot();
+                    }
+
+                    for (FTPFile f : ftpPickerFragment.ftp.listFiles(ftpPickerFragment.mCurrentPath.getPath())) {
+                        FtpFile file;
+                        if (f.isDirectory()) {
+                            file = new FtpDir(ftpPickerFragment.mCurrentPath, f.getName());
+                        } else {
+                            file = new FtpFile(ftpPickerFragment.mCurrentPath, f.getName());
+                        }
+                        if (ftpPickerFragment.isItemVisible(file)) {
+                            sortedList.add(file);
+                        }
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG, "IOException: " + e.getMessage());
+                }
+            }
+
+            return sortedList;
+        }
+
+        /**
+         * Handles a request to start the Loader.
+         */
+        @Override
+        protected void onStartLoading() {
+            super.onStartLoading();
+
+            // handle if directory does not exist. Fall back to root.
+            if (ftpPickerFragment.mCurrentPath == null || !ftpPickerFragment.mCurrentPath.isDirectory()) {
+                ftpPickerFragment.mCurrentPath = ftpPickerFragment.getRoot();
+            }
+
+            forceLoad();
+        }
     }
 }

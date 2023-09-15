@@ -7,20 +7,22 @@
 package com.nononsenseapps.filepicker;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.FileObserver;
 import android.widget.Toast;
-
-import java.io.File;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.loader.content.AsyncTaskLoader;
 import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.SortedList;
-import androidx.recyclerview.widget.SortedListAdapterCallback;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * An implementation of the picker which allows you to select a file from the internal/external
@@ -210,91 +212,8 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
      */
     @NonNull
     @Override
-    public Loader<SortedList<File>> getLoader() {
-        return new AsyncTaskLoader<SortedList<File>>(getActivity()) {
-
-            FileObserver fileObserver;
-
-            @Override
-            public SortedList<File> loadInBackground() {
-                File[] listFiles = mCurrentPath.listFiles();
-                final int initCap = listFiles == null ? 0 : listFiles.length;
-
-                SortedList<File> files = new SortedList<>(File.class, new SortedListAdapterCallback<File>(getDummyAdapter()) {
-                    @Override
-                    public int compare(File lhs, File rhs) {
-                        return compareFiles(lhs, rhs);
-                    }
-
-                    @Override
-                    public boolean areContentsTheSame(File file, File file2) {
-                        return file.getAbsolutePath().equals(file2.getAbsolutePath()) && (file.isFile() == file2.isFile());
-                    }
-
-                    @Override
-                    public boolean areItemsTheSame(File file, File file2) {
-                        return areContentsTheSame(file, file2);
-                    }
-                }, initCap);
-
-
-                files.beginBatchedUpdates();
-                if (listFiles != null) {
-                    for (java.io.File f : listFiles) {
-                        if (isItemVisible(f)) {
-                            files.add(f);
-                        }
-                    }
-                }
-                files.endBatchedUpdates();
-
-                return files;
-            }
-
-            /**
-             * Handles a request to start the Loader.
-             */
-            @Override
-            protected void onStartLoading() {
-                super.onStartLoading();
-
-                // handle if directory does not exist. Fall back to root.
-                if (mCurrentPath == null || !mCurrentPath.isDirectory()) {
-                    mCurrentPath = getRoot();
-                }
-
-                // Start watching for changes
-                fileObserver = new FileObserver(mCurrentPath.getPath(),
-                        FileObserver.CREATE |
-                                FileObserver.DELETE
-                                | FileObserver.MOVED_FROM | FileObserver.MOVED_TO
-                ) {
-
-                    @Override
-                    public void onEvent(int event, String path) {
-                        // Reload
-                        onContentChanged();
-                    }
-                };
-                fileObserver.startWatching();
-
-                forceLoad();
-            }
-
-            /**
-             * Handles a request to completely reset the Loader.
-             */
-            @Override
-            protected void onReset() {
-                super.onReset();
-
-                // Stop watching
-                if (fileObserver != null) {
-                    fileObserver.stopWatching();
-                    fileObserver = null;
-                }
-            }
-        };
+    public Loader<List<File>> getLoader() {
+        return new FileAsyncTaskLoader(requireContext(), this);
     }
 
     /**
@@ -351,6 +270,68 @@ public class FilePickerFragment extends AbstractFilePickerFragment<File> {
             return 1;
         } else {
             return lhs.getName().compareToIgnoreCase(rhs.getName());
+        }
+    }
+
+    private static class FileAsyncTaskLoader extends AsyncTaskLoader<List<File>> {
+
+        private final FilePickerFragment filePickerFragment;
+        FileObserver fileObserver;
+
+        public FileAsyncTaskLoader(Context context, FilePickerFragment filePickerFragment) {
+            super(context);
+            this.filePickerFragment = filePickerFragment;
+        }
+
+        @Override
+        public List<File> loadInBackground() {
+            File[] files = filePickerFragment.mCurrentPath.listFiles(filePickerFragment::isItemVisible);
+            if (files != null) {
+                Arrays.sort(files, filePickerFragment::compareFiles);
+                return Arrays.asList(files);
+            } else {
+                return new ArrayList<>();
+            }
+        }
+
+        /**
+         * Handles a request to start the Loader.
+         */
+        @Override
+        protected void onStartLoading() {
+            // handle if directory does not exist. Fall back to root.
+            if (filePickerFragment.mCurrentPath == null || !filePickerFragment.isDir(filePickerFragment.mCurrentPath)) {
+                filePickerFragment.mCurrentPath = filePickerFragment.getRoot();
+            }
+
+            // Start watching for changes
+            fileObserver = new FileObserver(filePickerFragment.mCurrentPath.getPath(),
+                    FileObserver.CREATE |
+                            FileObserver.DELETE
+                            | FileObserver.MOVED_FROM | FileObserver.MOVED_TO
+            ) {
+
+                @Override
+                public void onEvent(int event, String path) {
+                    // Reload
+                    onContentChanged();
+                }
+            };
+            fileObserver.startWatching();
+
+            forceLoad();
+        }
+
+        /**
+         * Handles a request to completely reset the Loader.
+         */
+        @Override
+        protected void onReset() {
+            // Stop watching
+            if (fileObserver != null) {
+                fileObserver.stopWatching();
+                fileObserver = null;
+            }
         }
     }
 }

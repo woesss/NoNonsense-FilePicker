@@ -7,6 +7,7 @@
 package com.nononsenseapps.filepicker.sample.dropbox;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -15,6 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.loader.content.AsyncTaskLoader;
+import androidx.loader.content.Loader;
 
 import com.dropbox.core.DbxException;
 import com.dropbox.core.v2.DbxClientV2;
@@ -26,14 +32,8 @@ import com.nononsenseapps.filepicker.AbstractFilePickerFragment;
 import com.nononsenseapps.filepicker.sample.R;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.loader.content.AsyncTaskLoader;
-import androidx.loader.content.Loader;
-import androidx.recyclerview.widget.SortedList;
-import androidx.recyclerview.widget.SortedListAdapterCallback;
 
 @SuppressLint("ValidFragment")
 public class DropboxFilePickerFragment extends AbstractFilePickerFragment<Metadata> {
@@ -79,7 +79,7 @@ public class DropboxFilePickerFragment extends AbstractFilePickerFragment<Metada
      * Once loading has finished, show the list and hide the progress bar.
      */
     @Override
-    public void onLoadFinished(Loader<SortedList<Metadata>> loader, SortedList<Metadata> data) {
+    public void onLoadFinished(Loader<List<Metadata>> loader, List<Metadata> data) {
         progressBar.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
         super.onLoadFinished(loader, data);
@@ -89,7 +89,7 @@ public class DropboxFilePickerFragment extends AbstractFilePickerFragment<Metada
      * Once loading has finished, show the list and hide the progress bar.
      */
     @Override
-    public void onLoaderReset(Loader<SortedList<Metadata>> loader) {
+    public void onLoaderReset(Loader<List<Metadata>> loader) {
         progressBar.setVisibility(View.INVISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
         super.onLoaderReset(loader);
@@ -155,105 +155,8 @@ public class DropboxFilePickerFragment extends AbstractFilePickerFragment<Metada
 
     @NonNull
     @Override
-    public Loader<SortedList<Metadata>> getLoader() {
-        return new AsyncTaskLoader<SortedList<Metadata>>(getActivity()) {
-
-            @Override
-            public SortedList<Metadata> loadInBackground() {
-                SortedList<Metadata> files = new SortedList<>(Metadata.class,
-                        new SortedListAdapterCallback<Metadata>(null) {
-                            @Override
-                            public int compare(Metadata lhs, Metadata rhs) {
-                                if (isDir(lhs) && !isDir(rhs)) {
-                                    return -1;
-                                } else if (isDir(rhs) && !isDir(lhs)) {
-                                    return 1;
-                                } else {
-                                    return lhs.getPathLower().compareTo(rhs.getPathLower());
-                                }
-                            }
-
-                            @Override
-                            public void onInserted(int position, int count) {
-                                // Ignore (DO NOT MODIFY ADAPTER HERE!)
-                            }
-
-                            @Override
-                            public void onRemoved(int position, int count) {
-                                // Ignore (DO NOT MODIFY ADAPTER HERE!)
-                            }
-
-                            @Override
-                            public void onMoved(int fromPosition, int toPosition) {
-                                // Ignore (DO NOT MODIFY ADAPTER HERE!)
-                            }
-
-                            @Override
-                            public void onChanged(int position, int count) {
-                                // Ignore (DO NOT MODIFY ADAPTER HERE!)
-                            }
-
-                            @Override
-                            public boolean areContentsTheSame(Metadata lhs, Metadata rhs) {
-                                return lhs.getName().equals(rhs.getName()) &&
-                                        (lhs.getClass().equals(rhs.getClass()));
-                            }
-
-                            @Override
-                            public boolean areItemsTheSame(Metadata lhs, Metadata rhs) {
-                                return areContentsTheSame(lhs, rhs);
-                            }
-                        }, 0);
-
-                try {
-                    if (!(mCurrentPath instanceof FolderMetadata)) {
-                        mCurrentPath = getRoot();
-                    }
-
-                    files.beginBatchedUpdates();
-
-                    String pathToList = mCurrentPath.getPathLower();
-                    ListFolderResult listDirResult = dropboxClient.files().listFolder(pathToList);
-                    List<Metadata> dirContents = listDirResult.getEntries();
-
-                    for (Metadata entry : dirContents) {
-                        if ((mode == MODE_FILE || mode == MODE_FILE_AND_DIR) ||
-                                entry instanceof FolderMetadata) {
-                            files.add(entry);
-                        }
-                    }
-
-                    files.endBatchedUpdates();
-                } catch (DbxException ignored) {
-                    Log.d(TAG, "Failed to list Dropbox folder", ignored);
-                    ignored.getMessage();
-                }
-
-                return files;
-            }
-
-            /**
-             * Handles a request to start the Loader.
-             */
-            @Override
-            protected void onStartLoading() {
-                super.onStartLoading();
-
-                if (mCurrentPath == null || !(mCurrentPath instanceof FolderMetadata)) {
-                    mCurrentPath = getRoot();
-                }
-
-                forceLoad();
-            }
-
-            /**
-             * Handles a request to completely reset the Loader.
-             */
-            @Override
-            protected void onReset() {
-                super.onReset();
-            }
-        };
+    public Loader<List<Metadata>> getLoader() {
+        return new DropboxAsyncTaskLoader(this, DropboxFilePickerFragment.this.getContext());
     }
 
     /**
@@ -294,6 +197,67 @@ public class DropboxFilePickerFragment extends AbstractFilePickerFragment<Metada
                 Toast.makeText(getActivity(), com.nononsenseapps.filepicker.R.string.nnf_create_folder_error,
                         Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    private static class DropboxAsyncTaskLoader extends AsyncTaskLoader<List<Metadata>> {
+
+        private final DropboxFilePickerFragment dropboxFilePickerFragment;
+
+        public DropboxAsyncTaskLoader(DropboxFilePickerFragment dropboxFilePickerFragment, Context context) {
+            super(context);
+            this.dropboxFilePickerFragment = dropboxFilePickerFragment;
+        }
+
+        @Override
+        public List<Metadata> loadInBackground() {
+            List<Metadata> files = new ArrayList<>();
+            try {
+                if (!(dropboxFilePickerFragment.mCurrentPath instanceof FolderMetadata)) {
+                    dropboxFilePickerFragment.mCurrentPath = dropboxFilePickerFragment.getRoot();
+                }
+
+                String pathToList = dropboxFilePickerFragment.mCurrentPath.getPathLower();
+                ListFolderResult listDirResult = dropboxFilePickerFragment.dropboxClient.files().listFolder(pathToList);
+                List<Metadata> dirContents = listDirResult.getEntries();
+
+                for (Metadata entry : dirContents) {
+                    if ((dropboxFilePickerFragment.mode == MODE_FILE ||
+                            dropboxFilePickerFragment.mode == MODE_FILE_AND_DIR) ||
+                            entry instanceof FolderMetadata) {
+                        files.add(entry);
+                    }
+                }
+
+            } catch (DbxException ignored) {
+                Log.d(TAG, "Failed to list Dropbox folder", ignored);
+                ignored.getMessage();
+            }
+
+            return files;
+        }
+
+        /**
+         * Handles a request to start the Loader.
+         */
+        @Override
+        protected void onStartLoading() {
+            super.onStartLoading();
+
+            if (dropboxFilePickerFragment.mCurrentPath == null ||
+                    !(dropboxFilePickerFragment.mCurrentPath instanceof FolderMetadata)) {
+                dropboxFilePickerFragment.mCurrentPath = dropboxFilePickerFragment.getRoot();
+            }
+
+            forceLoad();
+        }
+
+        /**
+         * Handles a request to completely reset the Loader.
+         */
+        @Override
+        protected void onReset() {
+            super.onReset();
         }
     }
 }
